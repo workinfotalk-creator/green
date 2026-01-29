@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<title>Best Sell - Green Cart Shop</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<!-- 🎨 Theme File Link -->
+<link rel="stylesheet" href="theme.css">
+<style>
+.card {
+  margin-bottom: 12px;
+}
+.back-link {
+  display: inline-block;
+  margin-bottom: 16px;
+  font-size: 16px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h2>🔥 Best Sell Products</h2>
+<a href="index.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back</a>
+<div id="list"></div>
+<div id="toast">কার্টে যোগ হয়েছে</div>
+</div>
+<script>
+const API_URL="https://script.google.com/macros/s/AKfycbwYWxzbimyMl1HwkTHl9YgtCWVHgseBngdcV2ZI5JCEfO8Xb-KoYSIa9CPa8R24-3y0/exec";
+let cart=JSON.parse(localStorage.getItem("cart"))||[];
+
+function addToCart(p){
+ let found = cart.find(i => i.name_bn === p.name_bn);
+ if(found){
+  found.qty++;
+ }else{
+  p.qty = 1;
+  cart.push(p);
+ }
+ localStorage.setItem("cart", JSON.stringify(cart));
+ toast.style.display="block";
+ setTimeout(()=>toast.style.display="none",1200);
+}
+
+fetch(API_URL).then(r=>r.json()).then(d=>{
+ d.filter(p=>p.is_best_sell=="yes").forEach(p=>{
+  const price=p.is_offer=="yes"?
+  `<span class="old">৳${p.price}</span> <span class="price">৳${p.offer_price}</span>`:
+  `<span class="price">৳${p.price}</span>`;
+  
+  list.innerHTML+=`
+  <div class="card">
+  ${p.is_offer=="yes"?'<div class="offer">OFF</div>':''}
+  <img src="${p.image}">
+  <b>${p.name_bn}</b><br>
+  ${price}
+  <button onclick='addToCart(${JSON.stringify(p)})'>Add</button>
+  </div>`;
+ });
+});
+</script>
+</body>
+</html>

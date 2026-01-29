@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<title>Cart - Green Cart Shop</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<!-- 🎨 Theme File Link -->
+<link rel="stylesheet" href="theme.css">
+<style>
+.item{
+ background:var(--card);
+ padding:12px;
+ border-radius:14px;
+ margin-bottom:12px;
+ border:1px solid var(--border-color);
+ box-shadow:var(--shadow);
+}
+.row{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ gap:10px;
+ margin-bottom:8px;
+}
+.row:last-child{
+ margin-bottom:0;
+}
+.qty{
+ display:flex;
+ align-items:center;
+ gap:10px;
+}
+.qty button{
+ width:32px;
+ height:32px;
+ border:none;
+ border-radius:50%;
+ background:var(--green);
+ color:#fff;
+ font-size:18px;
+ cursor:pointer;
+ transition:background 0.2s;
+}
+.qty button:hover{
+ background:var(--green-dark);
+}
+.remove{
+ color:var(--red);
+ font-size:18px;
+ cursor:pointer;
+ transition:transform 0.2s;
+}
+.remove:hover{
+ transform:scale(1.2);
+}
+.total{
+ font-size:20px;
+ font-weight:700;
+ margin:16px 0;
+ padding:12px;
+ background:var(--card);
+ border-radius:10px;
+ text-align:center;
+ color:var(--green);
+ border:2px solid var(--green);
+}
+.checkout{
+ width:100%;
+ padding:14px;
+ background:var(--green);
+ color:#fff;
+ border:none;
+ border-radius:12px;
+ font-size:18px;
+ font-weight:700;
+ cursor:pointer;
+ transition:background 0.2s, transform 0.1s;
+}
+.checkout:hover{
+ background:var(--green-dark);
+}
+.checkout:active{
+ transform:scale(0.98);
+}
+.back-link{
+ display:inline-block;
+ margin-bottom:16px;
+ font-size:16px;
+}
+h2{
+ color:var(--text-primary);
+}
+.item strong{
+ color:var(--text-primary);
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h2>🛒 আপনার কার্ট</h2>
+<a href="index.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> কেনাকাটায় ফিরে যান</a>
+<div id="cartBox"></div>
+<div class="total" id="total"></div>
+<button class="checkout" onclick="goCheckout()">Checkout</button>
+</div>
+<script>
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+const box = document.getElementById("cartBox");
+const totalBox = document.getElementById("total");
+
+function save(){
+ localStorage.setItem("cart", JSON.stringify(cart));
+ render();
+}
+
+function inc(i){ 
+ cart[i].qty++; 
+ save(); 
+}
+
+function dec(i){
+ if(cart[i].qty>1){ 
+  cart[i].qty--; 
+ }
+ else{ 
+  cart.splice(i,1); 
+ }
+ save();
+}
+
+function removeItem(i){
+ cart.splice(i,1);
+ save();
+}
+
+function render(){
+ box.innerHTML="";
+ let total=0;
+ 
+ // ✅ কার্ট খালি হলে অটোমেটিক হোম পেজে পাঠাবে
+ if(cart.length==0){
+  localStorage.removeItem("cart");
+  location.href="index.html";
+  return;
+ }
+ 
+ cart.forEach((p,i)=>{
+  const price = p.is_offer=="yes" ? p.offer_price : p.price;
+  total += price * p.qty;
+  box.innerHTML+=`
+  <div class="item">
+   <div class="row">
+    <strong>${p.name_bn}</strong>
+    <span class="remove" onclick="removeItem(${i})">❌</span>
+   </div>
+   <div class="row">
+    <span class="price">৳ ${price}</span>
+    <div class="qty">
+     <button onclick="dec(${i})">−</button>
+     <strong>${p.qty}</strong>
+     <button onclick="inc(${i})">+</button>
+    </div>
+   </div>
+  </div>`;
+ });
+ totalBox.innerHTML = "মোট: ৳ " + total;
+}
+ 
+function goCheckout(){
+ location.href="checkout.html";
+}
+
+render();
+</script>
+</body>
+</html>

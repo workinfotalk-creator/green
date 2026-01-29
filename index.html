@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<title>Green Cart Shop</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<!-- 🎨 Theme File Link -->
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+<header>
+  <div class="top">
+    <strong><i class="fa-solid fa-leaf"></i> Green Cart Shop</strong>
+    <div>
+      <a href="cart.html">
+        <i class="fa-solid fa-cart-shopping"></i> (<span id="cartCount">0</span>)
+      </a>
+      <i class="fa-solid fa-moon" onclick="toggleTheme()" style="margin-left:10px"></i>
+    </div>
+  </div>
+  <small>Main Gate, Housing Estate, Faridpur | 📞 01623-677-687</small>
+</header>
+<div class="container">
+<h3>🔥 Best Sell</h3>
+<div class="best" id="bestSell"></div>
+<a href="best-sell.html">See Full</a>
+<h3>🛒 All Products</h3>
+<div class="products" id="products"></div>
+</div>
+<div id="toast">কার্টে যোগ হয়েছে</div>
+<script>
+const API_URL="https://script.google.com/macros/s/AKfycbwYWxzbimyMl1HwkTHl9YgtCWVHgseBngdcV2ZI5JCEfO8Xb-KoYSIa9CPa8R24-3y0/exec";
+let cart=JSON.parse(localStorage.getItem("cart"))||[];
+cartCount.innerText=cart.length;
+function toggleTheme(){
+ document.body.classList.toggle("dark");
+ localStorage.setItem("theme",document.body.classList.contains("dark")?"dark":"light");
+}
+if(localStorage.getItem("theme")=="dark")document.body.classList.add("dark");
+function addToCart(p){
+ let found = cart.find(i => i.name_bn === p.name_bn);
+ if(found){
+  found.qty++;
+ }else{
+  p.qty = 1;
+  cart.push(p);
+ }
+ localStorage.setItem("cart", JSON.stringify(cart));
+ cartCount.innerText = cart.reduce((s,i)=>s+i.qty,0);
+ toast.style.display="block";
+ setTimeout(()=>toast.style.display="none",1200);
+}
+fetch(API_URL).then(r=>r.json()).then(data=>{
+ data.forEach(p=>{
+  const price=p.is_offer=="yes"?
+  `<span class="old">৳${p.price}</span> <span class="price">৳${p.offer_price}</span>`:
+  `<span class="price">৳${p.price}</span>`;
+  const html=`
+   ${p.is_offer=="yes"?'<div class="offer">OFF</div>':''}
+   <img src="${p.image}">
+   <b>${p.name_bn}</b><br>${price}
+   <button onclick='addToCart(${JSON.stringify(p)})'>Add</button>`;
+  let d=document.createElement("div");d.className="card";d.innerHTML=html;
+  products.appendChild(d);
+  if(p.is_best_sell=="yes"){let b=d.cloneNode(true);bestSell.appendChild(b);}
+ });
+});
+</script>
+</body>
+</html>
